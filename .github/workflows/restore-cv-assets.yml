@@ -1,0 +1,66 @@
+name: Restore original CV images and fonts
+
+on:
+  push:
+    paths:
+      - .github/workflows/restore-cv-assets.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  restore-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download and verify the 21 original files
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p assets
+          cat > /tmp/cv-original-assets.sha256 <<'ASSETS'
+          0ccee44455f545eb6b4083f77e5d15e7c9cd514007870167c8c69d1ba7631e26 font-0ccee44455f5.woff2
+          48282a415ec22e31beaf0a0666e6fae0c8cbddcd0b1f6e729f27c3ade8a64e43 font-48282a415ec2.woff2
+          4af9c759c8059b53923b4b50ba377ba51029876e1af1ea757efb07bc67d97896 font-4af9c759c805.woff2
+          4ed189e8653e9303ec1e1448a6025f838ecd19fe4a5f4f7889b8394b3c5378fb font-4ed189e8653e.woff2
+          5d618c462b7a5b74f442e1548880086af71764d9cc7d35c16ab45353da934621 font-5d618c462b7a.woff2
+          c6e0419cba62fba9e573686eaa1b503cae2f332e4ab1b0acff5cde599dee5d7a font-c6e0419cba62.woff2
+          249f26c0718eb1f0ce85afe64ac0284ca785630790e7b75dd075e3e5be88645a image-249f26c0718e.webp
+          2fa66dd68d3f6866dcf863ad66c83e119cb5c6ea24a96d563686c6c9187cf4e2 image-2fa66dd68d3f.webp
+          32e8e5dc561fe8bbc780abea0b263f2e23008a071cbab50c6e1c3f5ce5d69632 image-32e8e5dc561f.png
+          6c1ae4fc339ad56255e5de38278b21bcb11549cd55a6ed013438047b4785e525 image-6c1ae4fc339a.webp
+          8d5e0040e2213c3c36258650c9fef5c38bbd2ebb34d4089d25d64967923c7fea image-8d5e0040e221.webp
+          910ad9b3342ab9f59895acbc20efeaeac9e80f6733b6d185808c553cafa43f71 image-910ad9b3342a.webp
+          9165ea462548901eea21578c90a47f53322e936422ff0116a0e57ef247f8e92b image-9165ea462548.webp
+          a940b05546411003679eeefb09853ecab11bf9d656fca11ae883874ccae9c5d3 image-a940b0554641.webp
+          ab04a5a1bfb232c1295efec6ef47c716c34b575bd195b181102829387b204aab image-ab04a5a1bfb2.jpg
+          acfadb54889695ce43d8ad015b79df9f4006648abbc6520e6ccb6179ef3afb5a image-acfadb548896.webp
+          be60b50bfafc6791eca3c515bdffa72a8f2daa44cbe701b2c53e31e5f4dd0252 image-be60b50bfafc.webp
+          c9e240e519b2852bb6d37ce520192504ecbcb89bc54db45c72ac677088777f32 image-c9e240e519b2.webp
+          e7602e34b27ca04886faedb603b8da717db414b2bd9a500a52a488b4908c78eb image-e7602e34b27c.webp
+          f411c03b03b3038f5a3226ce62c3259dd1c0cb40c367635fe464b4f9cf316ef8 image-f411c03b03b3.webp
+          f9b88be69529bf0daa604d9c129e798c030c541244a5d80af5b1b31c8404f833 image-f9b88be69529.webp
+          ASSETS
+          while read -r checksum filename; do
+            curl --fail --silent --show-error --location --retry 3 --max-time 60 \
+              'https://dark-resonance-1e3d.ibrahem-toryh.workers.dev/assets/'"$filename" -o "assets/$filename"
+            printf '%s  %s\n' "$checksum" "assets/$filename" | sha256sum --check --status || {
+              echo "Hash mismatch or missing original asset: $filename" >&2
+              exit 1
+            }
+            echo "Restored and verified: $filename"
+          done < /tmp/cv-original-assets.sha256
+      - name: Publish restored assets to this repository
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/
+          if git diff --cached --quiet; then
+            echo 'Assets already present; no changes needed.'
+          else
+            git commit -m 'Restore original CV images and font assets'
+            git push
+          fi
