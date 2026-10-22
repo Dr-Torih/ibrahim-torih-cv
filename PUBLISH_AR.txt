@@ -1,0 +1,17 @@
+دليل النشر على GitHub Pages
+========================
+
+حساب GitHub: Dr-Torih
+اسم المستودع المطلوب: ibrahim-torih-cv
+نوع المستودع: Public
+
+1) افتح https://github.com/new وأنشئ المستودع بالاسم أعلاه، مع اختيار Public.
+2) فك ضغط الحزمة وارفع الملفات الموجودة بداخلها إلى المستودع، وليس مجلدًا يحتوي الملفات.
+3) افتح Settings > Pages ثم Source: Deploy from a branch، والفرع main والمجلد /(root) ثم Save.
+4) افحص صورة المعاينة في رابطها المستقل، ثم افتح الموقع وأرسل رابطه على واتساب:
+
+https://dr-torih.github.io/ibrahim-torih-cv/
+https://dr-torih.github.io/ibrahim-torih-cv/cv-social-preview.jpg
+
+مهم: حزمة ZIP لا تُرفع كملف واحد للمستودع؛ تُفك أولًا وتُرفع الملفات.
+ولا يُعتبر رابط الموقع جاهزًا إلا بعد إنشاء المستودع وتفعيل Pages.
